@@ -221,6 +221,7 @@ import { required, email } from '@validations'
 import { togglePasswordVisibility } from '@core/mixins/ui/forms'
 import store from '@/store/index'
 import { getHomeRouteForLoggedInUser } from '@/auth/utils'
+import axios from 'axios'
 
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 
@@ -251,8 +252,8 @@ export default {
   data() {
     return {
       status: '',
-      password: 'admin',
-      userEmail: 'admin@demo.com',
+      password: '',
+      userEmail: '',
       sideImg: require('@/assets/images/pages/login-v2.svg'),
 
       // validation rules
@@ -275,44 +276,59 @@ export default {
   },
   methods: {
     login() {
-      this.$refs.loginForm.validate().then(success => {
-        if (success) {
-          useJwt.login({
-            email: this.userEmail,
-            password: this.password,
-          })
-            .then(response => {
-              const { userData } = response.data
-              console.log(userData)
-              useJwt.setToken(response.data.accessToken)
-              useJwt.setRefreshToken(response.data.refreshToken)
-              localStorage.setItem('userData', JSON.stringify(userData))
-              this.$ability.update(userData.ability)
 
-              // ? This is just for demo purpose as well.
-              // ? Because we are showing eCommerce app's cart items count in navbar
-              this.$store.commit('app-ecommerce/UPDATE_CART_ITEMS_COUNT', userData.extras.eCommerceCartItemsCount)
+       axios.post('/api/auth/login',
+            {
+              email:this.userEmail,
+              password:this.password,
+            })
+            .then((res) => {
+              localStorage.setItem('usertoken', res.data.token)
+              
+            })
+            .catch((err) => {
+              console.log('error is ',err)
+                this.$refs.loginForm.setErrors(err.response.data.msg)
+            })
 
-              // ? This is just for demo purpose. Don't think CASL is role based in this case, we used role in if condition just for ease
-              this.$router.replace(getHomeRouteForLoggedInUser(userData.role))
-                .then(() => {
-                  this.$toast({
-                    component: ToastificationContent,
-                    position: 'top-right',
-                    props: {
-                      title: `Welcome ${userData.fullName || userData.username}`,
-                      icon: 'CoffeeIcon',
-                      variant: 'success',
-                      text: `You have successfully logged in as ${userData.role}. Now you can start to explore!`,
-                    },
-                  })
-                })
-            })
-            .catch(error => {
-              this.$refs.loginForm.setErrors(error.response.data.error)
-            })
-        }
-      })
+      // this.$refs.loginForm.validate().then(success => {
+      //   if (success) {
+      //     useJwt.login({
+      //       email: this.userEmail,
+      //       password: this.password,
+      //     })
+      //       .then(response => {
+      //         const { userData } = response.data
+      //         console.log(userData)
+      //         useJwt.setToken(response.data.accessToken)
+      //         useJwt.setRefreshToken(response.data.refreshToken)
+      //         localStorage.setItem('userData', JSON.stringify(userData))
+      //         this.$ability.update(userData.ability)
+
+      //         // ? This is just for demo purpose as well.
+      //         // ? Because we are showing eCommerce app's cart items count in navbar
+      //         this.$store.commit('app-ecommerce/UPDATE_CART_ITEMS_COUNT', userData.extras.eCommerceCartItemsCount)
+
+      //         // ? This is just for demo purpose. Don't think CASL is role based in this case, we used role in if condition just for ease
+      //         this.$router.replace(getHomeRouteForLoggedInUser(userData.role))
+      //           .then(() => {
+      //             this.$toast({
+      //               component: ToastificationContent,
+      //               position: 'top-right',
+      //               props: {
+      //                 title: `Welcome ${userData.fullName || userData.username}`,
+      //                 icon: 'CoffeeIcon',
+      //                 variant: 'success',
+      //                 text: `You have successfully logged in as ${userData.role}. Now you can start to explore!`,
+      //               },
+      //             })
+      //           })
+      //       })
+      //       .catch(error => {
+      //         this.$refs.loginForm.setErrors(error.response.data.error)
+      //       })
+      //   }
+      // })
     },
   },
 }
