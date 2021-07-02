@@ -283,6 +283,7 @@ export default {
           })
             .then(response => {
               const { userData } = response.data
+              console.log(userData)
               useJwt.setToken(response.data.accessToken)
               useJwt.setRefreshToken(response.data.refreshToken)
               localStorage.setItem('userData', JSON.stringify(userData))
