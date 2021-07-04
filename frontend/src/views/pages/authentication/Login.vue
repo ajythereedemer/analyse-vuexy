@@ -325,8 +325,10 @@ export default {
                 })
             })
             .catch((err) => {
-              console.log('error is ',err)
-                this.$refs.loginForm.setErrors(err.response.data.msg)
+                let error = {}
+                error.email = [err.response.data.msg]
+              console.log('error is ',err.response.data.msg)
+                this.$refs.loginForm.setErrors(error)
             })
       //working api for the login
 
@@ -365,6 +367,7 @@ export default {
       //           })
       //       })
       //       .catch(error => {
+      //         console.log(error.response.data)
       //         this.$refs.loginForm.setErrors(error.response.data.error)
       //       })
       //   }
