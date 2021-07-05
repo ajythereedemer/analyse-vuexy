@@ -51,4 +51,12 @@ class AuthenticationController extends Controller
                 'status' => 'success'
             ]);
     }
+	
+	public function getData(Request $request)
+    {
+		$inputs = $request->all();
+		print_r($inputs);
+		die;
+        return view('application');
+    }
 }

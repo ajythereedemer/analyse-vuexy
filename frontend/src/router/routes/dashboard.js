@@ -9,4 +9,9 @@ export default [
     name: 'dashboard-ecommerce',
     component: () => import('@/views/dashboard/ecommerce/Ecommerce.vue'),
   },
+  {
+    path: '/dashboard/multistep',
+    name: 'dashboard-multistep',
+    component: () => import('@/views/dashboard/multistep/multistep.vue'),
+  },
 ]
