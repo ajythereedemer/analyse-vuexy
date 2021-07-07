@@ -1,142 +1,187 @@
 <template>
-    <div>
-    <b-form >
-		<div id="mutistep">
-		<vue-cloneya :maximum="10">
-		<b-row  v-cloneya-input>
-		<b-col
-          cols="12"
-          md="4"
-        >
-          <b-form-group
-            label="Step Title"
-            label-for="step_title"
-          >
-            <b-form-input
-              id="step_title"
-              name="data[][step_title]"
-              required="required"
-            />
-          </b-form-group>
-        </b-col>
-        <b-col
-          cols="12"
-          md="4"
-        >
-          <b-form-group
-            label="Title"
-            label-for="title"
-          >
-            <b-form-input
-              id="title"
-              name="data[][title]"
-            />
-          </b-form-group>
-        </b-col>
-		<b-col
-          cols="12"
-          md="4"
-        >
-          <b-form-group
-            label="Description"
-            label-for="description"
-          >
-            <b-form-textarea
-				id="description"
-				name="data[][description]"
-				rows="8"
-			  />
-          </b-form-group>
-        </b-col>
-		<b-col
-          cols="12"
-          md="3"
-        >
-          <b-form-group
-            label="Image"
-            label-for="file"
-          >
-            <b-form-file
-			  id="file"
-				name="data[][file]"
-			  class="mt-1"
-			  plain
-			/>
-          </b-form-group>
-        </b-col>
-		<span class="input-group-btn">
-        <!-- Add the "v-cloneya-add" directive to elements you wish to add the click listener
-        that will clone the root element -->
-        <button type="button" class="btn btn-success" tabindex="-1" v-cloneya-add>
-            <i class="fa fa-plus"></i>
-        </button>
-        <!-- Add the "v-cloneya-remove" directive to elements you wish to add the click listener
-        that will remove the element -->
-        <button type="button" class="btn btn-danger" tabindex="-1"  v-cloneya-remove>
-          <i class="fa fa-minus"></i>
-        </button>
-      </span>
-		</b-row>
-		</vue-cloneya>
-    </div>
-	<input class="btn" type="button" @click="submitForm" value="Submit"/>
-    </b-form>
-</div>
+  <div>
+     <div>
+      <b-form
+        ref="form"
+        :style="{height: trHeight}"
+        class="repeater-form"
+        @submit.prevent="repeateAgain"
+      >
 
+        <!-- Row Loop -->
+        <b-row
+          v-for="(item, index) in items"
+          :id="item.id"
+          :key="item.id"
+          ref="row"
+        >
+
+          <!-- Item Name -->
+          <b-col md="2">
+            <b-form-group
+              label="Step Name"
+              label-for="step-name"
+            >
+              <b-form-input
+                id="step-name"
+				v-model="items[index].step_name"
+                type="text"
+                placeholder="Step Name"
+              />
+            </b-form-group>
+          </b-col>
+
+          <!-- Cost -->
+          <b-col md="2">
+            <b-form-group
+              label="Title"
+              label-for="title"
+            >
+              <b-form-input
+                id="title"
+				v-model="items[index].title"
+                type="text"
+                placeholder="Title"
+              />
+            </b-form-group>
+          </b-col>
+
+          <!-- Quantity -->
+          <b-col md="4">
+            <b-form-group
+              label="Description"
+              label-for="description"
+            >
+              <b-form-textarea
+                id="description"
+				v-model="items[index].description"
+                type="text"
+                placeholder="Description"
+              />
+            </b-form-group>
+          </b-col>
+
+          <!-- Profession -->
+          <b-col
+            lg="2"
+            md="1"
+          >
+            <b-form-group
+              label="Image"
+              label-for="image"
+            >
+              <b-form-file
+                id="image"
+                type="text"
+                placeholder="image"
+              />
+            </b-form-group>
+          </b-col>
+
+          <!-- Remove Button -->
+          <b-col
+            lg="2"
+            md="3"
+            class="mb-50"
+          >
+            <b-button
+              v-ripple.400="'rgba(234, 84, 85, 0.15)'"
+              variant="outline-danger"
+              class="mt-0 mt-md-2"
+              @click="removeItem(index)"
+            >
+              <feather-icon
+                icon="XIcon"
+                class="mr-25"
+              />
+              <span>Delete</span>
+            </b-button>
+          </b-col>
+          <b-col cols="12">
+            <hr>
+          </b-col>
+        </b-row>
+
+      </b-form>
+    </div>
+    <b-button
+      v-ripple.400="'rgba(255, 255, 255, 0.15)'"
+      variant="primary"
+      @click="repeateAgain"
+    >
+      <feather-icon
+        icon="PlusIcon"
+        class="mr-25"
+      />
+      <span>Add New</span>
+    </b-button>
+	<b-button
+      v-ripple.400="'rgba(255, 255, 255, 0.15)'"
+      variant="primary"
+      @click="sumitForm"
+    >
+      <span>Submit</span>
+    </b-button>
+  </div>
 </template>
 
 <script>
 import {
-  BButton, BMedia, BAvatar,BFormTextarea,BFormFile, BRow, BCol, BFormGroup, BFormInput, BForm, BTable, BCard, BCardHeader, BCardTitle, BFormCheckbox,
+  BForm, BFormGroup, BFormInput, BRow, BCol, BButton,BFormTextarea,BFormFile
 } from 'bootstrap-vue'
-import { avatarText } from '@core/utils/filter'
-import vSelect from 'vue-select'
-import Vue      from 'vue'
-import VueCloneya from 'vue-cloneya'
-import { useInputImageRenderer } from '@core/comp-functions/forms/form-utils'
-import { ref } from '@vue/composition-api'
+import { heightTransition } from '@core/mixins/ui/transition'
+import Ripple from 'vue-ripple-directive'
 import axios from 'axios'
-
-Vue.use(VueCloneya)
 
 export default {
   components: {
-    BButton,
-    BMedia,
-    BAvatar,
+    BForm,
     BRow,
     BCol,
+    BButton,
     BFormGroup,
-    BFormInput,
     BFormFile,
     BFormTextarea,
-    BForm,
-    BTable,
-    BCard,
-    BCardHeader,
-    BCardTitle,
-    BFormCheckbox,
-    vSelect,
-  },  
+    BFormInput,
+  },
+  directives: {
+    Ripple,
+  },
+  mixins: [heightTransition],
   data() {
     return {
-		data: [
-			{
-				title: '',
-				step_title: '',
-				description: '',
-				file: ''
-			}
-		]
+      items: [{
+        step_name: '',
+        title: '',
+        description: '',
+      }],
+      nextTodoId: 2,
     }
   },
+  mounted() {
+    this.initTrHeight()
+  },
+  created() {
+    window.addEventListener('resize', this.initTrHeight)
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.initTrHeight)
+  },
   methods: {
-    submitForm() {
-      //working api for the login
-	  console.log(this.data)
-       axios.post('/api/auth/multiple-data',
+    repeateAgain() {
+      this.items.push({
+        id: this.nextTodoId += this.nextTodoId,
+      })
+
+      this.$nextTick(() => {
+        this.trAddHeight(this.$refs.row[0].offsetHeight)
+      })
+    },
+	sumitForm: function () {
+      console.log(this.items);
+	  axios.post('/api/auth/multiple-data',
 		{
-		  data:this.data,
+		  data:this.items,
 		})
 		.then((response) => {
 		
@@ -146,37 +191,23 @@ export default {
 			console.log('error is ',err.response.data.msg)
 		})
     },
-  },
-	props: {
-    data: [
-			{
-				title: '',
-				step_title: '',
-				description: '',
-				file: ''
-			}
-		],
-  },
-  setup(props) {
-    // ? Demo Purpose => Update image on click of update
-    const refInputEl = ref(null)
-    const previewEl = ref(null)
-
-    const { inputImageRenderer } = useInputImageRenderer(refInputEl, base64 => {
-      // eslint-disable-next-line no-param-reassign
-    })
-
-    return {
-      avatarText,
-      //  ? Demo - Update Image on click of update button
-      refInputEl,
-      previewEl,
-      inputImageRenderer,
-    }
+    removeItem(index) {
+      this.items.splice(index, 1)
+      this.trTrimHeight(this.$refs.row[0].offsetHeight)
+    },
+    initTrHeight() {
+      this.trSetHeight(null)
+      this.$nextTick(() => {
+        this.trSetHeight(this.$refs.form.scrollHeight)
+      })
+    },
   },
 }
 </script>
 
-<style lang="scss">
-@import '@core/scss/vue/libs/vue-select.scss';
+<style lang="scss" scoped>
+.repeater-form {
+  overflow: hidden;
+  transition: .35s height;
+}
 </style>

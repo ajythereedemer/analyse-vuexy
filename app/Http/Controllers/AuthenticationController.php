@@ -10,6 +10,7 @@ use Tymon\JWTAuth\JWTManager as JWT;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Illuminate\Http\Request;
+use App\Models\MultiStep;
 
 class AuthenticationController extends Controller
 {
@@ -55,8 +56,22 @@ class AuthenticationController extends Controller
 	public function getData(Request $request)
     {
 		$inputs = $request->all();
-		print_r($inputs);
+		//MultiStep::delete();
+		MultiStep::query()->truncate();
+
+		foreach($inputs['data'] as $input)
+		{
+			$data = [
+				"step_name"=>$input['step_name'] ?? "",
+				"title"=>$input['title'] ?? "",
+				"description"=>$input['description'] ?? "",
+				"created_by"=>$input['created_by'] ?? 0,
+				"image"=>$input['image'] ?? "",
+			];
+			MultiStep::insert($data);
+		}
+		
+		print_r($request->file('files'));
 		die;
-        return view('application');
     }
 }
