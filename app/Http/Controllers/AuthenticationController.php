@@ -74,7 +74,7 @@ class AuthenticationController extends Controller
 				"title"=>$input['title'] ?? "",
 				"description"=>$input['description'] ?? "",
 				"created_by"=>$input['created_by'] ?? 0,
-				"image"=>$filePath,
+				"image"=> '/'.$filePath,
 			];
 			MultiStep::insert($data);
 		}

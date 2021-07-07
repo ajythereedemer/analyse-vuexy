@@ -76,6 +76,7 @@
 				v-on:change="onFileChange"
                 placeholder="image"
               />
+			  <img :src="items[index].image" class="img-fluid" :key="index" />
             </b-form-group>
           </b-col>
 
