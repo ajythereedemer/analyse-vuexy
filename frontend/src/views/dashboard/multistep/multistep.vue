@@ -71,8 +71,9 @@
               label-for="image"
             >
               <b-form-file
-                id="image"
+                :attr=index
                 type="text"
+				v-on:change="onFileChange"
                 placeholder="image"
               />
             </b-form-group>
@@ -155,6 +156,8 @@ export default {
         title: '',
         description: '',
       }],
+	  files: [],
+	  image: [],
       nextTodoId: 2,
     }
   },
@@ -169,6 +172,38 @@ export default {
     window.removeEventListener('resize', this.initTrHeight)
   },
   methods: {
+	onFileChange(e) {
+		let files = e.target.files || e.dataTransfer.files;
+		if (!files.length)
+			return;
+			
+		console.log(e.target.getAttribute("attr"));
+		this.createImage(files[0],e.target.getAttribute("attr"));
+	},
+	createImage(file,index) {
+		let reader = new FileReader();
+		let vm = this;
+		reader.onload = (e) => {
+			vm.image[index] = e.target.result;
+		};
+		console.log(file);
+		
+		reader.readAsDataURL(file);
+	},
+	uploadImage: function(index) {    
+      var file = document
+        .findelementbyid('file_'+index)
+        .files[0];
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        vm.image = e.target.result             
+      };
+      reader.onerror = function(error) {
+        alert(error);
+      };
+	  console.log(vm.image);
+      reader.readAsDataURL(file);      
+    },
     repeateAgain() {
       this.items.push({
         id: this.nextTodoId += this.nextTodoId,
@@ -194,6 +229,7 @@ export default {
 	  axios.post('/api/auth/multiple-data',
 		{
 		  data:this.items,
+		  image:this.image,
 		})
 		.then((response) => {
 		

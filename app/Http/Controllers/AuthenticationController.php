@@ -56,23 +56,28 @@ class AuthenticationController extends Controller
 	public function getData(Request $request)
     {
 		$inputs = $request->all();
-		//MultiStep::delete();
 		MultiStep::query()->truncate();
 
-		foreach($inputs['data'] as $input)
+		foreach($inputs['data'] as $index=>$input)
 		{
+			$filePath = "";
+			if(isset($inputs['image'][$index]))
+			{
+				$image = $inputs['image'][$index];
+				$image = str_replace('data:image/png;base64,', '', $image);
+				$image = str_replace(' ', '+', $image);
+				$filePath = "image-".time().".png";
+				\File::put(public_path(). '/' . $filePath, base64_decode($image));
+			}
 			$data = [
 				"step_name"=>$input['step_name'] ?? "",
 				"title"=>$input['title'] ?? "",
 				"description"=>$input['description'] ?? "",
 				"created_by"=>$input['created_by'] ?? 0,
-				"image"=>$input['image'] ?? "",
+				"image"=>$filePath,
 			];
 			MultiStep::insert($data);
 		}
-		
-		print_r($request->file('files'));
-		die;
     }
 	
 	public function getFormData(Request $request)
