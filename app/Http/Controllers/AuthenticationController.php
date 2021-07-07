@@ -74,4 +74,12 @@ class AuthenticationController extends Controller
 		print_r($request->file('files'));
 		die;
     }
+	
+	public function getFormData(Request $request)
+    {
+		$inputs = $request->all();
+		$multiStep = MultiStep::get();
+
+		return response()->json(compact('multiStep'));
+    }
 }

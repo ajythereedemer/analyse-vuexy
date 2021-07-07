@@ -163,6 +163,7 @@ export default {
   },
   created() {
     window.addEventListener('resize', this.initTrHeight)
+	this.getData()
   },
   destroyed() {
     window.removeEventListener('resize', this.initTrHeight)
@@ -176,6 +177,17 @@ export default {
       this.$nextTick(() => {
         this.trAddHeight(this.$refs.row[0].offsetHeight)
       })
+    },
+	getData(){
+        axios.get('/api/auth/get-data').then(response => 
+        {
+			if(response.data.multiStep.length > 0)
+			{
+				this.items = response.data.multiStep;
+				console.log(this.items);
+				this.initTrHeight();
+			}
+		});
     },
 	sumitForm: function () {
       console.log(this.items);
