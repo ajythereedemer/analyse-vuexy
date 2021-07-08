@@ -3,7 +3,7 @@ export default [
     header: 'Apps & Pages',
   },
   {
-    title: 'Email',
+    title: 'Emaild',
     route: 'apps-email',
     icon: 'MailIcon',
   },
