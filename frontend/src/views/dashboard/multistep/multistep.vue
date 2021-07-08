@@ -1,6 +1,7 @@
 <template>
   <div>
      <div>
+	 <validation-observer ref="simpleRules">
       <b-form
         ref="form"
         :style="{height: trHeight}"
@@ -15,19 +16,27 @@
           :key="item.id"
           ref="row"
         >
-
+	
           <!-- Item Name -->
           <b-col md="2">
             <b-form-group
               label="Step Name"
               label-for="step-name"
             >
+				<validation-provider
+              #default="{ errors }"
+              name="Step Name "
+              rules="required"
+            >
               <b-form-input
                 id="step-name"
 				v-model="items[index].step_name"
+				:state="errors.length > 0 ? false:null"
                 type="text"
                 placeholder="Step Name"
               />
+			  <small class="text-danger">{{ errors[0] }}</small>
+			  </validation-provider>
             </b-form-group>
           </b-col>
 
@@ -37,12 +46,21 @@
               label="Title"
               label-for="title"
             >
+			<validation-provider
+              #default="{ errors }"
+              name="Title "
+              rules="required"
+            >
               <b-form-input
                 id="title"
+				:name="'title'+index"
 				v-model="items[index].title"
+				:state="errors.length > 0 ? false:null"
                 type="text"
                 placeholder="Title"
               />
+				<small class="text-danger">{{ errors[0] }}</small>
+			</validation-provider>
             </b-form-group>
           </b-col>
 
@@ -52,12 +70,20 @@
               label="Description"
               label-for="description"
             >
+			<validation-provider
+              #default="{ errors }"
+              name="Description"
+              rules="required"
+            >
               <b-form-textarea
                 id="description"
 				v-model="items[index].description"
+				:state="errors.length > 0 ? false:null"
                 type="text"
                 placeholder="Description"
               />
+			  <small class="text-danger">{{ errors[0] }}</small>
+			</validation-provider>
             </b-form-group>
           </b-col>
 
@@ -106,6 +132,7 @@
         </b-row>
 
       </b-form>
+	  </validation-observer>
     </div>
     <b-button
       v-ripple.400="'rgba(255, 255, 255, 0.15)'"
@@ -129,18 +156,22 @@
 </template>
 
 <script>
+import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import {
   BForm, BFormGroup, BFormInput, BRow, BCol, BButton,BFormTextarea,BFormFile
 } from 'bootstrap-vue'
 import { heightTransition } from '@core/mixins/ui/transition'
 import Ripple from 'vue-ripple-directive'
 import axios from 'axios'
+import { required, email } from '@validations'
 
 import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 
 export default {
   components: {
     BForm,
+	ValidationProvider,
+    ValidationObserver,
     BRow,
     BCol,
     BButton,
@@ -163,6 +194,7 @@ export default {
       }],
 	  files: [],
 	  image: [],
+	  required: '',
       nextTodoId: 2,
     }
   },
@@ -207,13 +239,17 @@ export default {
       reader.readAsDataURL(file);      
     },
     repeateAgain() {
-      this.items.push({
-        id: this.nextTodoId += this.nextTodoId,
-      })
+		this.$refs.simpleRules.validate().then(success => {
+			if(success){
+				this.items.push({
+					id: this.nextTodoId += this.nextTodoId,
+				})
 
-      this.$nextTick(() => {
-        this.trAddHeight(this.$refs.row[0].offsetHeight)
-      })
+				this.$nextTick(() => {
+					this.trAddHeight(this.$refs.row[0].offsetHeight)
+				})
+			}
+		})
     },
 	getData(){
         axios.get('/api/auth/get-data').then(response => 
@@ -226,28 +262,32 @@ export default {
 		});
     },
 	sumitForm: function () {
-	  axios.post('/api/auth/multiple-data',
-		{
-		  data:this.items,
-		  image:this.image,
-		})
-		.then((response) => {
-			this.$toast({
-				component: ToastificationContent,
-				position: 'top-right',
-				props: {
-				  title: `Success`,
-				  icon: 'CoffeeIcon',
-				  variant: 'success',
-				  text: `Steps updated successfully!`,
-				},
-			  })
-			this.getData();
-		})
-		.catch((err) => {
-			let error = {}
-			console.log('error is ',err.response.data.msg)
-		})
+		this.$refs.simpleRules.validate().then(success => {
+        if (success) {
+			axios.post('/api/auth/multiple-data',
+			{
+			  data:this.items,
+			  image:this.image,
+			})
+			.then((response) => {
+				this.$toast({
+					component: ToastificationContent,
+					position: 'top-right',
+					props: {
+					  title: `Success`,
+					  icon: 'CoffeeIcon',
+					  variant: 'success',
+					  text: `Steps updated successfully!`,
+					},
+				  })
+				this.getData();
+			})
+			.catch((err) => {
+				let error = {}
+				console.log('error is ',err.response.data.msg)
+			})
+        }
+      })
     },
     removeItem(index) {
       this.items.splice(index, 1)
