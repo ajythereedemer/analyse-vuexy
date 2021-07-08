@@ -15,4 +15,9 @@ export default [
       },
     ],
   },
+  {
+    title: 'Multi Step',
+    route: 'dashboard-multistep',
+    icon: 'CopyIcon',
+  },
 ]
