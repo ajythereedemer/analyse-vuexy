@@ -11,6 +11,7 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Illuminate\Http\Request;
 use App\Models\MultiStep;
+use Carbon\Carbon;
 
 class AuthenticationController extends Controller
 {
@@ -56,28 +57,47 @@ class AuthenticationController extends Controller
 	public function getData(Request $request)
     {
 		$inputs = $request->all();
-		MultiStep::query()->truncate();
-
+		//print_r($inputs['data']);die;
+		//MultiStep::query()->truncate();
+		
+		$ids = [];
 		foreach($inputs['data'] as $index=>$input)
 		{
+			$data = [
+				"step_name"=>$input['step_name'] ?? "",
+				"title"=>$input['title'] ?? "",
+				"description"=>$input['description'] ?? "",
+			];
+			
 			$filePath = "";
 			if(isset($inputs['image'][$index]))
 			{
 				$image = $inputs['image'][$index];
 				$image = str_replace('data:image/png;base64,', '', $image);
 				$image = str_replace(' ', '+', $image);
-				$filePath = "image-".time().".png";
+				$filePath = "images/image-".time().".png";
 				\File::put(public_path(). '/' . $filePath, base64_decode($image));
+				
+				$data['image'] = '/'.$filePath;
 			}
-			$data = [
-				"step_name"=>$input['step_name'] ?? "",
-				"title"=>$input['title'] ?? "",
-				"description"=>$input['description'] ?? "",
-				"created_by"=>$input['created_by'] ?? 0,
-				"image"=> '/'.$filePath,
-			];
-			MultiStep::insert($data);
+			if(isset($input['created_by']))
+			{
+				$data['created_by'] = $input['created_by'] ?? 0;
+				$data['updated_at'] = Carbon::now();
+				$ids[] = $input['id'];
+				$multiStep = MultiStep::find($input['id']);
+				$multiStep->update($data);
+			}
+			else
+			{
+				$data['created_by'] = $input['created_by'] ?? 0;
+				$data['created_at'] = Carbon::now();
+				$insertData = MultiStep::insert($data);
+				$ids[] = \DB::getPdo()->lastInsertId();
+			}
 		}
+		MultiStep::whereNotIn('id', $ids)->delete();
+		print_r($ids);die;
     }
 	
 	public function getFormData(Request $request)

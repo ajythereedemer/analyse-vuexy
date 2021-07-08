@@ -77,6 +77,7 @@
                 placeholder="image"
               />
 			  <img :src="items[index].image" class="img-fluid" :key="index" />
+			  <input type="hidden" v-model="items[index].id" />
             </b-form-group>
           </b-col>
 
@@ -135,6 +136,8 @@ import { heightTransition } from '@core/mixins/ui/transition'
 import Ripple from 'vue-ripple-directive'
 import axios from 'axios'
 
+import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
+
 export default {
   components: {
     BForm,
@@ -153,6 +156,7 @@ export default {
   data() {
     return {
       items: [{
+        id: '',
         step_name: '',
         title: '',
         description: '',
@@ -178,7 +182,6 @@ export default {
 		if (!files.length)
 			return;
 			
-		console.log(e.target.getAttribute("attr"));
 		this.createImage(files[0],e.target.getAttribute("attr"));
 	},
 	createImage(file,index) {
@@ -187,7 +190,6 @@ export default {
 		reader.onload = (e) => {
 			vm.image[index] = e.target.result;
 		};
-		console.log(file);
 		
 		reader.readAsDataURL(file);
 	},
@@ -202,7 +204,6 @@ export default {
       reader.onerror = function(error) {
         alert(error);
       };
-	  console.log(vm.image);
       reader.readAsDataURL(file);      
     },
     repeateAgain() {
@@ -220,20 +221,28 @@ export default {
 			if(response.data.multiStep.length > 0)
 			{
 				this.items = response.data.multiStep;
-				console.log(this.items);
-				this.initTrHeight();
+				setTimeout(() => this.initTrHeight(), 1500);
 			}
 		});
     },
 	sumitForm: function () {
-      console.log(this.items);
 	  axios.post('/api/auth/multiple-data',
 		{
 		  data:this.items,
 		  image:this.image,
 		})
 		.then((response) => {
-		
+			this.$toast({
+				component: ToastificationContent,
+				position: 'top-right',
+				props: {
+				  title: `Success`,
+				  icon: 'CoffeeIcon',
+				  variant: 'success',
+				  text: `Steps updated successfully!`,
+				},
+			  })
+			this.getData();
 		})
 		.catch((err) => {
 			let error = {}
