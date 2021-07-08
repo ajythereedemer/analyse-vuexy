@@ -82,7 +82,7 @@
                 type="text"
                 placeholder="Description"
               />
-			  <small class="text-danger">{{ errors[0] }}</small>
+			  <small class="text-danger">{{ errors[0] }}</small> 
 			</validation-provider>
             </b-form-group>
           </b-col>
