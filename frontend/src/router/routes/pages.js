@@ -28,6 +28,14 @@ export default [
     },
   },
   {
+    path: '/pages/multistep',
+    name: 'multistep-frontend',
+    component: () => import('@/views/pages/multistep/multistep.vue'),
+    meta: {
+      layout: 'full',
+    },
+  },
+  {
     path: '/pages/authentication/login-v2',
     name: 'auth-login-v2',
     component: () => import('@/views/pages/authentication/Login-v2.vue'),
