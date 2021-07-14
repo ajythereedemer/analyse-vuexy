@@ -67,6 +67,7 @@ class AuthenticationController extends Controller
 				"step_name"=>$input['step_name'] ?? "",
 				"title"=>$input['title'] ?? "",
 				"description"=>$input['description'] ?? "",
+				"content_url"=>$input['content_url'] ?? "",
 			];
 			
 			$filePath = "";
@@ -97,7 +98,6 @@ class AuthenticationController extends Controller
 			}
 		}
 		MultiStep::whereNotIn('id', $ids)->delete();
-		print_r($ids);die;
     }
 	
 	public function getFormData(Request $request)

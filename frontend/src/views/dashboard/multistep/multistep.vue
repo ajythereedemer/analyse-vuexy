@@ -106,6 +106,29 @@
 			  <input type="hidden" v-model="items[index].id" />
             </b-form-group>
           </b-col>
+		  
+		  <b-col md="6">
+            <b-form-group
+              label="Content URL"
+              label-for="content_url"
+            >
+			<validation-provider
+              #default="{ errors }"
+              name="Content URL"
+              rules="required"
+            >
+              <b-form-input
+                id="content_url"
+				:name="'content_url'+index"
+				v-model="items[index].content_url"
+				:state="errors.length > 0 ? false:null"
+                type="text"
+                placeholder="Content URL"
+              />
+				<small class="text-danger">{{ errors[0] }}</small>
+			</validation-provider>
+            </b-form-group>
+          </b-col>
 
           <!-- Remove Button -->
           <b-col
@@ -191,6 +214,7 @@ export default {
         step_name: '',
         title: '',
         description: '',
+        content_url: '',
       }],
 	  files: [],
 	  image: [],
@@ -296,7 +320,7 @@ export default {
     initTrHeight() {
       this.trSetHeight(null)
       this.$nextTick(() => {
-        this.trSetHeight(this.$refs.form.scrollHeight)
+        this.trSetHeight(this.$refs.form.scrollHeight+300)
       })
     },
   },

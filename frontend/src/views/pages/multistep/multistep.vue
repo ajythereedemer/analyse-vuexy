@@ -1,4 +1,5 @@
 <template>
+<div class="multisteps-cover">
   <div class="multisteps">
 <ul class="d-flex flex-wrap justify-content-between align-middle multi-tabs">
   <li class="inline-list" v-for="(item, index) in multistep"
@@ -23,7 +24,7 @@
 			  <div class="tabs-data-content">
 				<h2>{{item.title}}</h2>
 				<div class="content-block">{{item.description}}</div>
-				<a class="button-gray" href="javascript:void(0)">Content Button</a>
+				<a class="button-gray" target="_blank" :href="item.content_url == '' ? 'javascript:void(0)' : item.content_url">Content</a>
 				<div class="next-steps-block">
 					<a class="button-next" @click="activateStep(index,1)" href="javascript:void(0)" >Next Step {{index+1}}</a>
 				</div>
@@ -31,6 +32,7 @@
 		  </div>
 	  </div>
   </div>
+</div>
 </div>
 </div>
 </template>
@@ -106,11 +108,13 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
 .tabs-icon, .tabs-icon img, .tabs-text{ -webkit-transition:all 0.4s ease-in-out; -moz-transition:all 0.4s ease-in-out; -o-transition:all 0.4s ease-in-out; transition:all 0.4s ease-in-out;}
 
+.multisteps-cover{ padding:100px 0;}
 .multisteps{  font-family: 'Rubik', sans-serif;}
 .multisteps{ width:100%; max-width:989px; margin:auto; border:2px solid #1570FF; border-radius:8px; font-size:16px; line-height:24px;}
 .multisteps img{ max-width:100%;}
-.multi-tabs{ background:rgba(21,112,255,0.1); padding:24px 0; margin:0; border-radius:8px;}
-.inline-list{ list-style:none; padding:0 20px; text-align:center;}
+.multi-tabs{ background:rgba(21,112,255,0.1); padding:24px 0; margin:0; border-radius:8px; position:relative;}
+.multi-tabs:after{ content:""; position:absolute; top:37%; left:50%; transform:translate(-50%, -50%); width:837px; height:2px; background:#1570FF; opacity:0.40;}
+.inline-list{ list-style:none; padding:0 20px; text-align:center; position:relative; z-index:2;}
 .tab-link{ display:inline-block;}
 .tabs-icon{ width:36px; height:36px; display:block; margin:auto; background:#999; border-radius:58.3333px; line-height:25px; padding:5px;}
 .tabs-text{ color:#000; font-size:12px; line-height:18px; display:block; width:97px; margin-top:14.5px; letter-spacing:0.6px;}
@@ -144,11 +148,15 @@ export default {
 .next-steps-block{ text-align:center; padding-top:35px;}
 .tabs-data-content h2{ font-size:26px; line-height:36px;}
 .block-image{ margin:auto;}	
+.multi-tabs:after{ display:none;}
+.multisteps-cover{ padding:30px 15px;}
 }
 
 /*TABLET LAYOUT*/
 @media only screen and (min-width: 768px) and (max-width: 1024px) {
 .multi-tabs{ justify-content:center!important;}
+.multi-tabs:after{ display:none;}
+.multisteps-cover{ padding:30px 15px;}
 }
 
 </style>
