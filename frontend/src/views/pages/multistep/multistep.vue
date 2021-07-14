@@ -18,7 +18,7 @@
 		  <div class="d-flex flex-wrap justify-content-between row-tabs-steps">
 			  <div class="tabs-data-image">
 				  <div class="block-image">
-					<img :src="item.image"  alt="Headline Lorem ipsum dolorsit amet"/>
+					<img :src="item.image"  :alt="item.title"/>
 				  </div>
 			  </div>
 			  <div class="tabs-data-content">

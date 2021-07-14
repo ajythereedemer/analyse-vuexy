@@ -61,6 +61,7 @@ class AuthenticationController extends Controller
 		//MultiStep::query()->truncate();
 		
 		$ids = [];
+		$extension = [];
 		foreach($inputs['data'] as $index=>$input)
 		{
 			$data = [
@@ -74,9 +75,17 @@ class AuthenticationController extends Controller
 			if(isset($inputs['image'][$index]))
 			{
 				$image = $inputs['image'][$index];
-				$image = str_replace('data:image/png;base64,', '', $image);
+				$extension = explode('/', mime_content_type($image))[1];
+				if($extension == "jpeg"){
+					$image = str_replace('data:image/jpeg;base64,', '', $image);
+				}else if($extension == "png"){
+					$image = str_replace('data:image/png;base64,', '', $image);
+				}else{
+					$image = str_replace('data:image/svg+xml;base64,', '', $image);
+				}
+				
 				$image = str_replace(' ', '+', $image);
-				$filePath = "images/image-".time().".png";
+				$filePath = "images/image-".time().".".$extension;
 				\File::put(public_path(). '/' . $filePath, base64_decode($image));
 				
 				$data['image'] = '/'.$filePath;
@@ -98,6 +107,8 @@ class AuthenticationController extends Controller
 			}
 		}
 		MultiStep::whereNotIn('id', $ids)->delete();
+
+		return response()->json($extension);
     }
 	
 	public function getFormData(Request $request)
