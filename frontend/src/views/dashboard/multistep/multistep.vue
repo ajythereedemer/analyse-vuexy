@@ -320,7 +320,7 @@ export default {
     initTrHeight() {
       this.trSetHeight(null)
       this.$nextTick(() => {
-        this.trSetHeight(this.$refs.form.scrollHeight+300)
+        this.trSetHeight(this.$refs.form.scrollHeight+200)
       })
     },
   },
