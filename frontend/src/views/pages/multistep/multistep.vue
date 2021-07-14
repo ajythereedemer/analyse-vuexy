@@ -1,10 +1,10 @@
 <template>
   <div class="multisteps">
 <ul class="d-flex flex-wrap justify-content-between align-middle multi-tabs">
-  <li class="inline-list" v-for="item in multistep"
+  <li class="inline-list" v-for="(item, index) in multistep"
   :key="item.id"
         >
-    <a href="javascript:void(0)" class="tab-link"><span class="tabs-icon"><img :src="imgUrl" alt="STEP 1" /></span><span class="tabs-text">{{item.title}}</span></a>
+    <a href="javascript:void(0)" @click="activateStep(index,0)" :class="index == active_el ? 'tab-link active' : 'tab-link'"><span class="tabs-icon"><img :src="imgUrl" alt="STEP 1" /></span><span class="tabs-text">{{item.step_name}}</span></a>
   </li>
 </ul>
 
@@ -12,7 +12,7 @@
   <div class="tab-pane fade">1...</div>
   <div class="tab-pane fade" id="step2">2...</div>
   <div class="tab-pane " id="step3" v-for="(item, index) in multistep"
-  :key="item.id" :class="index == 0 ? 'show active' : 'fade'">
+  :key="item.id" :class="index == active_el ? 'show active' : 'fade'">
 	  <div class="multi-tabs-data">
 		  <div class="d-flex flex-wrap justify-content-between row-tabs-steps">
 			  <div class="tabs-data-image">
@@ -25,7 +25,7 @@
 				<div class="content-block">{{item.description}}</div>
 				<a class="button-gray" href="javascript:void(0)">Content Button</a>
 				<div class="next-steps-block">
-					<a class="button-next" href="javascript:void(0)" >Next Step {{index+1}}</a>
+					<a class="button-next" @click="activateStep(index,1)" href="javascript:void(0)" >Next Step {{index+1}}</a>
 				</div>
 			  </div>
 		  </div>
@@ -67,11 +67,20 @@ export default {
     return {
       userEmail: '',
       password: '',
+      active_el: 0,
       status: '',
       // validation rules
       required,
       email,
       multistep: []
+    }
+  },
+  methods:{
+    activateStep:function(el,type){
+		let element = (el+1);
+		if(type == 0)
+			element = el;
+        this.active_el = element == this.multistep.length ? (this.multistep.length - 1) : element;
     }
   },
   created() {
