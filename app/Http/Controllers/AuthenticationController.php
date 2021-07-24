@@ -62,7 +62,7 @@ class AuthenticationController extends Controller
 		$data = [];
 		if(isset($inputs['id']))
 		{
-			//$data['created_by'] = $input['created_by'] ?? 0;
+			$data['created_by'] = $input['created_by'] ?? 0;
 			$data['title'] = $inputs['title'];
 			$data['updated_at'] = Carbon::now();
 			$multiStep = MultiStepMaster::find($inputs['id']);
@@ -71,7 +71,7 @@ class AuthenticationController extends Controller
 		else
 		{
 			$data['title'] = $inputs['title'];
-			//$data['created_by'] = $input['created_by'] ?? 0;
+			$data['created_by'] = $input['created_by'] ?? 0;
 			$data['created_at'] = Carbon::now();
 			$insertData = MultiStepMaster::insert($data);
 			$inputs['id'] = \DB::getPdo()->lastInsertId();

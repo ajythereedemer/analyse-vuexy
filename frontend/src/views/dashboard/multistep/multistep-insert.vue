@@ -343,9 +343,11 @@ export default {
 					  title: `Success`,
 					  icon: 'CoffeeIcon',
 					  variant: 'success',
-					  text: `Steps updated successfully!`,
+					  text: `Steps saved successfully!`,
 					},
 				  })
+				  
+				  setTimeout(() => this.$router.push('/dashboard/multistep'), 1000); 
 			})
 			.catch((err) => {
 				let error = {}

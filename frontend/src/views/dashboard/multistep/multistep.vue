@@ -1,8 +1,16 @@
 <template>
   <div>
     <!-- search input -->
+	 <b-button
+      v-ripple.400="'rgba(255, 255, 255, 0.15)'"
+      variant="primary"
+      @click="redirectPageNew"
+    >
+      <span>Add New</span>
+    </b-button>
     <div class="custom-search d-flex justify-content-end">
-      <b-form-group>
+     
+	  <b-form-group>
         <div class="d-flex align-items-center">
           <label class="mr-1">Search</label>
           <b-form-input
@@ -24,7 +32,7 @@
         enabled: true,
         externalQuery: searchTerm }"
       :select-options="{
-        enabled: true,
+        enabled: false,
         selectOnCheckboxOnly: true, // only select when checkbox is clicked instead of the row
         selectionInfoClass: 'custom-class',
         selectionText: 'rows selected',
@@ -44,14 +52,14 @@
 
         <!-- Column: Name -->
         <span
-          v-if="props.column.field === 'stepName'"
+          v-if="props.column.field === 'title'"
           class="text-nowrap"
         >
           <span class="text-nowrap">{{ props.row.title }}</span>
         </span>
 
         <!-- Column: Status -->
-        <span v-else-if="props.column.field === 'totalSteps'">
+        <span v-else-if="props.column.field === 'steps_count'">
           <span class="text-nowrap">{{ props.row.steps_count }}</span>
         </span>
 
@@ -75,7 +83,7 @@
                   icon="Edit2Icon"
                   class="mr-50"
                 />
-                <a :href="'/multistep-inner/' + props.row.id"><span>Edit</span></a>
+                <span @click="redirectPageEdit(props.row.id)">Edit</span>
               </b-dropdown-item>
               <b-dropdown-item>
                 <feather-icon
@@ -83,6 +91,13 @@
                   class="mr-50"
                 />
                 <span @click="deleteData(props.row.id)">Delete</span>
+              </b-dropdown-item>
+			  <b-dropdown-item>
+                <feather-icon
+                  icon="TrashIcon"
+                  class="mr-50"
+                />
+                <span @click="redirectPageFrontend(props.row.id)">Open Tutorial</span>
               </b-dropdown-item>
             </b-dropdown>
           </span>
@@ -146,7 +161,7 @@
 </template>
 <script>
 import {
-  BAvatar, BBadge, BPagination, BFormGroup, BFormInput, BFormSelect, BDropdown, BDropdownItem,
+  BAvatar, BBadge, BPagination, BFormGroup,BButton, BFormInput, BFormSelect, BDropdown, BDropdownItem,
 } from 'bootstrap-vue'
 import { VueGoodTable } from 'vue-good-table'
 import store from '@/store/index'
@@ -155,6 +170,7 @@ import axios from 'axios'
 export default {
   components: {
     VueGoodTable,
+    BButton,
     BAvatar,
     BBadge,
     BPagination,
@@ -170,12 +186,12 @@ export default {
       dir: false,
       columns: [
         {
-          label: 'Step Name',
-          field: 'stepName',
+          label: 'Title',
+          field: 'title',
         },
         {
           label: 'Total Steps',
-          field: 'totalSteps',
+          field: 'steps_count',
         },
         {
           label: 'Action',
@@ -212,6 +228,16 @@ export default {
         {
 			setTimeout(() => this.getData(), 1000);
 		});
+    },
+	redirectPageEdit(id){
+		this.$router.push('/dashboard/multistep-inner/'+id);
+    },
+	redirectPageNew(){
+		this.$router.push('/dashboard/multistep-inner');
+    },
+	redirectPageFrontend(id){
+		let routeData = this.$router.resolve('/pages/multistep/'+id);
+		window.open(routeData.href, '_blank');
     }
   },
   computed: {
@@ -246,3 +272,7 @@ export default {
   },
 }
 </script>
+
+<style lang="scss" >
+@import '@core/scss/vue/libs/vue-good-table.scss';
+</style>
