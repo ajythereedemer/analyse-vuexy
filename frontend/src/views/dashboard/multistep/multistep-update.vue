@@ -125,12 +125,12 @@
 		  
 		  <b-col md="6">
             <b-form-group
-              label="Content URL"
+              label="Button URL"
               label-for="content_url"
             >
 			<validation-provider
               #default="{ errors }"
-              name="Content URL"
+              name="Button URL"
               rules="required"
             >
               <b-form-input
