@@ -139,7 +139,7 @@
 				v-model="items[index].content_url"
 				:state="errors.length > 0 ? false:null"
                 type="text"
-                placeholder="Content URL"
+                placeholder="Button URL"
               />
 				<small class="text-danger">{{ errors[0] }}</small>
 			</validation-provider>
