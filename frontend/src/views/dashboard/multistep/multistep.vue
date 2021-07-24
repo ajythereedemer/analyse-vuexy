@@ -94,7 +94,7 @@
               </b-dropdown-item>
 			  <b-dropdown-item>
                 <feather-icon
-                  icon="TrashIcon"
+                  icon="LinkIcon"
                   class="mr-50"
                 />
                 <span @click="redirectPageFrontend(props.row.id)">Open Tutorial</span>
