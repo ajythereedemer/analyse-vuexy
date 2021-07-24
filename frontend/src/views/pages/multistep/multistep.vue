@@ -18,13 +18,13 @@
 		  <div class="d-flex flex-wrap justify-content-between row-tabs-steps">
 			  <div class="tabs-data-image">
 				  <div class="block-image">
-					<img :src="item.image"  :alt="item.title"/>
+					<img :src="item.image"  :alt="item.title" v-if="item.image"/>
 				  </div>
 			  </div>
 			  <div class="tabs-data-content">
 				<h2>{{item.title}}</h2>
 				<div class="content-block">{{item.description}}</div>
-				<a class="button-gray" target="_blank" :href="item.content_url == '' ? 'javascript:void(0)' : item.content_url">Content</a>
+				<a class="button-gray" target="_blank" :href="item.content_url == '' ? 'javascript:void(0)' : item.content_url">{{item.button_text == '' ? 'Content' : item.button_text}}</a>
 				<div class="next-steps-block">
 					<a class="button-next" @click="activateStep(index,1)" href="javascript:void(0)" >Next Step {{index+1}}</a>
 				</div>
@@ -71,6 +71,7 @@ export default {
       password: '',
       active_el: 0,
       status: '',
+	  id: this.$route.params.id,
       // validation rules
       required,
       email,
@@ -86,8 +87,8 @@ export default {
     }
   },
   created() {
-    this.$http.get('/api/auth/get-data').then(res => { this.multistep = res.data.multiStep
-    console.log(this.multistep)
+    this.$http.get('/api/auth/get-data/'+this.id).then(res => { this.multistep = res.data.multiStep.steps
+
     })
   },
   computed: {

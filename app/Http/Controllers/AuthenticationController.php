@@ -11,6 +11,7 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Illuminate\Http\Request;
 use App\Models\MultiStep;
+use App\Models\MultiStepMaster;
 use Carbon\Carbon;
 
 class AuthenticationController extends Controller
@@ -57,8 +58,25 @@ class AuthenticationController extends Controller
 	public function getData(Request $request)
     {
 		$inputs = $request->all();
-		//print_r($inputs['data']);die;
-		//MultiStep::query()->truncate();
+		
+		$data = [];
+		if(isset($inputs['id']))
+		{
+			//$data['created_by'] = $input['created_by'] ?? 0;
+			$data['title'] = $inputs['title'];
+			$data['updated_at'] = Carbon::now();
+			$multiStep = MultiStepMaster::find($inputs['id']);
+			$multiStep->update($data);
+		}
+		else
+		{
+			$data['title'] = $inputs['title'];
+			//$data['created_by'] = $input['created_by'] ?? 0;
+			$data['created_at'] = Carbon::now();
+			$insertData = MultiStepMaster::insert($data);
+			$inputs['id'] = \DB::getPdo()->lastInsertId();
+		}
+		$data = [];
 		
 		$ids = [];
 		$extension = [];
@@ -67,8 +85,10 @@ class AuthenticationController extends Controller
 			$data = [
 				"step_name"=>$input['step_name'] ?? "",
 				"title"=>$input['title'] ?? "",
+				"master_id"=>$inputs['id'] ?? "",
 				"description"=>$input['description'] ?? "",
 				"content_url"=>$input['content_url'] ?? "",
+				"button_text"=>$input['button_text'] ?? "",
 			];
 			
 			$filePath = "";
@@ -106,16 +126,32 @@ class AuthenticationController extends Controller
 				$ids[] = \DB::getPdo()->lastInsertId();
 			}
 		}
-		MultiStep::whereNotIn('id', $ids)->delete();
+		MultiStep::whereNotIn('id', $ids)->where(['master_id'=>$inputs['id']])->delete();
 
 		return response()->json($extension);
     }
 	
-	public function getFormData(Request $request)
+	public function getFormData(Request $request,$id)
     {
 		$inputs = $request->all();
-		$multiStep = MultiStep::get();
+		$multiStep = MultiStepMaster::with('steps')->where(["id"=>$id])->first();
 
 		return response()->json(compact('multiStep'));
+    }
+	
+	public function getTableData(Request $request)
+    {
+		$inputs = $request->all();
+		$multiStep = MultiStepMaster::withCount('steps')->orderBy('id', 'DESC')->get();
+
+		return response()->json(compact('multiStep'));
+    }
+	
+	public function deleteData(Request $request,$id)
+    {	
+		MultiStepMaster::where(['id'=>$id])->delete();
+		MultiStep::where(['master_id'=>$id])->delete();
+		
+		return true;
     }
 }

@@ -1,335 +1,248 @@
 <template>
   <div>
-     <div>
-	 <validation-observer ref="simpleRules">
-      <b-form
-        ref="form"
-        :style="{height: trHeight}"
-        class="repeater-form"
-        @submit.prevent="repeateAgain"
+    <!-- search input -->
+    <div class="custom-search d-flex justify-content-end">
+      <b-form-group>
+        <div class="d-flex align-items-center">
+          <label class="mr-1">Search</label>
+          <b-form-input
+            v-model="searchTerm"
+            placeholder="Search"
+            type="text"
+            class="d-inline-block"
+          />
+        </div>
+      </b-form-group>
+    </div>
+
+    <!-- table -->
+    <vue-good-table
+      :columns="columns"
+      :rows="rows"
+      :rtl="direction"
+      :search-options="{
+        enabled: true,
+        externalQuery: searchTerm }"
+      :select-options="{
+        enabled: true,
+        selectOnCheckboxOnly: true, // only select when checkbox is clicked instead of the row
+        selectionInfoClass: 'custom-class',
+        selectionText: 'rows selected',
+        clearSelectionText: 'clear',
+        disableSelectInfo: true, // disable the select info panel on top
+        selectAllByGroup: true, // when used in combination with a grouped table, add a checkbox in the header row to check/uncheck the entire group
+      }"
+      :pagination-options="{
+        enabled: true,
+        perPage:pageLength
+      }"
+    >
+      <template
+        slot="table-row"
+        slot-scope="props"
       >
 
-        <!-- Row Loop -->
-        <b-row
-          v-for="(item, index) in items"
-          :id="item.id"
-          :key="item.id"
-          ref="row"
+        <!-- Column: Name -->
+        <span
+          v-if="props.column.field === 'stepName'"
+          class="text-nowrap"
         >
-	
-          <!-- Item Name -->
-          <b-col md="2">
-            <b-form-group
-              label="Step Name"
-              label-for="step-name"
-            >
-				<validation-provider
-              #default="{ errors }"
-              name="Step Name "
-              rules="required"
-            >
-              <b-form-input
-                id="step-name"
-				v-model="items[index].step_name"
-				:state="errors.length > 0 ? false:null"
-                type="text"
-                placeholder="Step Name"
-              />
-			  <small class="text-danger">{{ errors[0] }}</small>
-			  </validation-provider>
-            </b-form-group>
-          </b-col>
+          <span class="text-nowrap">{{ props.row.title }}</span>
+        </span>
 
-          <!-- Cost -->
-          <b-col md="2">
-            <b-form-group
-              label="Title"
-              label-for="title"
-            >
-			<validation-provider
-              #default="{ errors }"
-              name="Title "
-              rules="required"
-            >
-              <b-form-input
-                id="title"
-				:name="'title'+index"
-				v-model="items[index].title"
-				:state="errors.length > 0 ? false:null"
-                type="text"
-                placeholder="Title"
-              />
-				<small class="text-danger">{{ errors[0] }}</small>
-			</validation-provider>
-            </b-form-group>
-          </b-col>
+        <!-- Column: Status -->
+        <span v-else-if="props.column.field === 'totalSteps'">
+          <span class="text-nowrap">{{ props.row.steps_count }}</span>
+        </span>
 
-          <!-- Quantity -->
-          <b-col md="4">
-            <b-form-group
-              label="Description"
-              label-for="description"
+        <!-- Column: Action -->
+        <span v-else-if="props.column.field === 'action'">
+          <span>
+            <b-dropdown
+              variant="link"
+              toggle-class="text-decoration-none"
+              no-caret
             >
-			<validation-provider
-              #default="{ errors }"
-              name="Description"
-              rules="required"
-            >
-              <b-form-textarea
-                id="description"
-				v-model="items[index].description"
-				:state="errors.length > 0 ? false:null"
-                type="text"
-                placeholder="Description"
-              />
-			  <small class="text-danger">{{ errors[0] }}</small> 
-			</validation-provider>
-            </b-form-group>
-          </b-col>
+              <template v-slot:button-content>
+                <feather-icon
+                  icon="MoreVerticalIcon"
+                  size="16"
+                  class="text-body align-middle mr-25"
+                />
+              </template>
+              <b-dropdown-item>
+                <feather-icon
+                  icon="Edit2Icon"
+                  class="mr-50"
+                />
+                <a :href="'/multistep-inner/' + props.row.id"><span>Edit</span></a>
+              </b-dropdown-item>
+              <b-dropdown-item>
+                <feather-icon
+                  icon="TrashIcon"
+                  class="mr-50"
+                />
+                <span @click="deleteData(props.row.id)">Delete</span>
+              </b-dropdown-item>
+            </b-dropdown>
+          </span>
+        </span>
 
-          <!-- Profession -->
-          <b-col
-            lg="2"
-            md="1"
-          >
-            <b-form-group
-              label="Image"
-              label-for="image"
-            >
-              <b-form-file
-                :attr=index
-                type="text"
-				v-on:change="onFileChange"
-                placeholder="image"
-              />
-			  <img :src="items[index].image" class="img-fluid" :key="index" />
-			  <input type="hidden" v-model="items[index].id" />
-            </b-form-group>
-          </b-col>
-		  
-		  <b-col md="6">
-            <b-form-group
-              label="Content URL"
-              label-for="content_url"
-            >
-			<validation-provider
-              #default="{ errors }"
-              name="Content URL"
-              rules="required"
-            >
-              <b-form-input
-                id="content_url"
-				:name="'content_url'+index"
-				v-model="items[index].content_url"
-				:state="errors.length > 0 ? false:null"
-                type="text"
-                placeholder="Content URL"
-              />
-				<small class="text-danger">{{ errors[0] }}</small>
-			</validation-provider>
-            </b-form-group>
-          </b-col>
+        <!-- Column: Common -->
+        <span v-else>
+          {{ props.formattedRow[props.column.field] }}
+        </span>
+      </template>
 
-          <!-- Remove Button -->
-          <b-col
-            lg="2"
-            md="3"
-            class="mb-50"
-          >
-            <b-button
-              v-ripple.400="'rgba(234, 84, 85, 0.15)'"
-              variant="outline-danger"
-              class="mt-0 mt-md-2"
-              @click="removeItem(index)"
+      <!-- pagination -->
+      <template
+        slot="pagination-bottom"
+        slot-scope="props"
+      >
+        <div class="d-flex justify-content-between flex-wrap">
+          <div class="d-flex align-items-center mb-0 mt-1">
+            <span class="text-nowrap ">
+              Showing 1 to
+            </span>
+            <b-form-select
+              v-model="pageLength"
+              :options="['3','5','10']"
+              class="mx-1"
+              @input="(value)=>props.perPageChanged({currentPerPage:value})"
+            />
+            <span class="text-nowrap"> of {{ props.total }} entries </span>
+          </div>
+          <div>
+            <b-pagination
+              :value="1"
+              :total-rows="props.total"
+              :per-page="pageLength"
+              first-number
+              last-number
+              align="right"
+              prev-class="prev-item"
+              next-class="next-item"
+              class="mt-1 mb-0"
+              @input="(value)=>props.pageChanged({currentPage:value})"
             >
-              <feather-icon
-                icon="XIcon"
-                class="mr-25"
-              />
-              <span>Delete</span>
-            </b-button>
-          </b-col>
-          <b-col cols="12">
-            <hr>
-          </b-col>
-        </b-row>
-
-      </b-form>
-	  </validation-observer>
-    </div>
-    <b-button
-      v-ripple.400="'rgba(255, 255, 255, 0.15)'"
-      variant="primary"
-      @click="repeateAgain"
-    >
-      <feather-icon
-        icon="PlusIcon"
-        class="mr-25"
-      />
-      <span>Add New</span>
-    </b-button>
-	<b-button
-      v-ripple.400="'rgba(255, 255, 255, 0.15)'"
-      variant="primary"
-      @click="sumitForm"
-    >
-      <span>Submit</span>
-    </b-button>
+              <template #prev-text>
+                <feather-icon
+                  icon="ChevronLeftIcon"
+                  size="18"
+                />
+              </template>
+              <template #next-text>
+                <feather-icon
+                  icon="ChevronRightIcon"
+                  size="18"
+                />
+              </template>
+            </b-pagination>
+          </div>
+        </div>
+      </template>
+    </vue-good-table>
   </div>
 </template>
-
 <script>
-import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import {
-  BForm, BFormGroup, BFormInput, BRow, BCol, BButton,BFormTextarea,BFormFile
+  BAvatar, BBadge, BPagination, BFormGroup, BFormInput, BFormSelect, BDropdown, BDropdownItem,
 } from 'bootstrap-vue'
-import { heightTransition } from '@core/mixins/ui/transition'
-import Ripple from 'vue-ripple-directive'
+import { VueGoodTable } from 'vue-good-table'
+import store from '@/store/index'
 import axios from 'axios'
-import { required, email } from '@validations'
-
-import ToastificationContent from '@core/components/toastification/ToastificationContent.vue'
 
 export default {
   components: {
-    BForm,
-	ValidationProvider,
-    ValidationObserver,
-    BRow,
-    BCol,
-    BButton,
+    VueGoodTable,
+    BAvatar,
+    BBadge,
+    BPagination,
     BFormGroup,
-    BFormFile,
-    BFormTextarea,
     BFormInput,
+    BFormSelect,
+    BDropdown,
+    BDropdownItem,
   },
-  directives: {
-    Ripple,
-  },
-  mixins: [heightTransition],
   data() {
     return {
-      items: [{
-        id: '',
-        step_name: '',
-        title: '',
-        description: '',
-        content_url: '',
+      pageLength: 3,
+      dir: false,
+      columns: [
+        {
+          label: 'Step Name',
+          field: 'stepName',
+        },
+        {
+          label: 'Total Steps',
+          field: 'totalSteps',
+        },
+        {
+          label: 'Action',
+          field: 'action',
+        },
+      ],
+      rows: [],
+      searchTerm: '',
+      status: [{
+        1: 'Current',
+        2: 'Professional',
+        3: 'Rejected',
+        4: 'Resigned',
+        5: 'Applied',
+      },
+      {
+        1: 'light-primary',
+        2: 'light-success',
+        3: 'light-danger',
+        4: 'light-warning',
+        5: 'light-info',
       }],
-	  files: [],
-	  image: [],
-	  required: '',
-      nextTodoId: 2,
     }
   },
-  mounted() {
-    this.initTrHeight()
-  },
-  created() {
-    window.addEventListener('resize', this.initTrHeight)
-	this.getData()
-  },
-  destroyed() {
-    window.removeEventListener('resize', this.initTrHeight)
-  },
   methods: {
-	onFileChange(e) {
-		let files = e.target.files || e.dataTransfer.files;
-		if (!files.length)
-			return;
-			
-		this.createImage(files[0],e.target.getAttribute("attr"));
-	},
-	createImage(file,index) {
-		let reader = new FileReader();
-		let vm = this;
-		reader.onload = (e) => {
-			vm.image[index] = e.target.result;
-		};
-		
-		reader.readAsDataURL(file);
-	},
-	uploadImage: function(index) {    
-      var file = document
-        .findelementbyid('file_'+index)
-        .files[0];
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        vm.image = e.target.result             
-      };
-      reader.onerror = function(error) {
-        alert(error);
-      };
-      reader.readAsDataURL(file);      
-    },
-    repeateAgain() {
-		this.$refs.simpleRules.validate().then(success => {
-			if(success){
-				this.items.push({
-					id: this.nextTodoId += this.nextTodoId,
-				})
-
-				this.$nextTick(() => {
-					this.trAddHeight(this.$refs.row[0].offsetHeight)
-				})
-			}
-		})
-    },
 	getData(){
-        axios.get('/api/auth/get-data').then(response => 
+        axios.get('/api/auth/get-table').then(response => 
         {
-			if(response.data.multiStep.length > 0)
-			{
-				this.items = response.data.multiStep;
-				setTimeout(() => this.initTrHeight(), 1500);
-			}
+			this.rows = response.data.multiStep;
 		});
     },
-	sumitForm: function () {
-		this.$refs.simpleRules.validate().then(success => {
-        if (success) {
-			axios.post('/api/auth/multiple-data',
-			{
-			  data:this.items,
-			  image:this.image,
-			})
-			.then((response) => {
-				this.$toast({
-					component: ToastificationContent,
-					position: 'top-right',
-					props: {
-					  title: `Success`,
-					  icon: 'CoffeeIcon',
-					  variant: 'success',
-					  text: `Steps updated successfully!`,
-					},
-				  })
-				this.getData();
-			})
-			.catch((err) => {
-				let error = {}
-				console.log('error is ',err.response.data.msg)
-			})
-        }
-      })
+	deleteData(id){
+        axios.get('/api/auth/delete-step/'+id).then(response => 
+        {
+			setTimeout(() => this.getData(), 1000);
+		});
+    }
+  },
+  computed: {
+    statusVariant() {
+      const statusColor = {
+        /* eslint-disable key-spacing */
+        Current      : 'light-primary',
+        Professional : 'light-success',
+        Rejected     : 'light-danger',
+        Resigned     : 'light-warning',
+        Applied      : 'light-info',
+        /* eslint-enable key-spacing */
+      }
+
+      return status => statusColor[status]
     },
-    removeItem(index) {
-      this.items.splice(index, 1)
-      this.trTrimHeight(this.$refs.row[0].offsetHeight)
+    direction() {
+      if (store.state.appConfig.isRTL) {
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+        this.dir = true
+        return this.dir
+      }
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      this.dir = false
+      return this.dir
     },
-    initTrHeight() {
-      this.trSetHeight(null)
-      this.$nextTick(() => {
-        this.trSetHeight(this.$refs.form.scrollHeight+200)
-      })
-    },
+  },
+  created() {
+	   this.$http.get('/api/auth/get-table').then(res => { 
+			this.rows = res.data.multiStep
+		});
   },
 }
 </script>
-
-<style lang="scss" scoped>
-.repeater-form {
-  overflow: hidden;
-  transition: .35s height;
-}
-</style>

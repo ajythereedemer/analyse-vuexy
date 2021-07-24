@@ -28,7 +28,7 @@ export default [
     },
   },
   {
-    path: '/pages/multistep',
+    path: '/pages/multistep/:id',
     name: 'multistep-frontend',
     component: () => import('@/views/pages/multistep/multistep.vue'),
     meta: {
