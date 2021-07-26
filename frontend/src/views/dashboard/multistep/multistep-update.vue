@@ -365,6 +365,7 @@ export default {
 			.catch((err) => {
 				let error = {}
 				console.log('error is ',err.response.data.msg)
+         this.show = false;
 			})
         }
       })
