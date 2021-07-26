@@ -362,8 +362,14 @@ export default {
 				console.log('error is ',err.response.data.msg)
          this.show = false;
 			})
+        }else{
+          this.show = false;
         }
-      })
+      }).catch((err) => {
+				let error = {}
+				//console.log('error is ',err.response.data.msg)
+         this.show = false;
+			})
     },
     removeItem(index) {
       this.items.splice(index, 1)
