@@ -1,5 +1,10 @@
 <template>
+
   <div>
+    <b-overlay
+      :show="show"
+      rounded="sm"
+    >
      <div>
 	 <validation-observer ref="simpleRules">
       <b-form
@@ -214,13 +219,14 @@
     >
       <span>Submit</span>
     </b-button>
+    </b-overlay>
   </div>
 </template>
 
 <script>
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import {
-  BForm, BFormGroup, BFormInput, BRow, BCol, BButton,BFormTextarea,BFormFile
+  BOverlay, BForm, BFormGroup, BFormInput, BRow, BCol, BButton,BFormTextarea,BFormFile
 } from 'bootstrap-vue'
 import { heightTransition } from '@core/mixins/ui/transition'
 import Ripple from 'vue-ripple-directive'
@@ -231,6 +237,7 @@ import ToastificationContent from '@core/components/toastification/Toastificatio
 
 export default {
   components: {
+    BOverlay,
     BForm,
 	ValidationProvider,
     ValidationObserver,
@@ -261,6 +268,7 @@ export default {
 	  image: [],
 	  required: '',
       nextTodoId: 2,
+      show: false
     }
   },
   mounted() {
@@ -268,8 +276,9 @@ export default {
   },
   created() {
     window.addEventListener('resize', this.initTrHeight)
+    this.show = true;
 	this.getData()
-  },
+  },  
   destroyed() {
     window.removeEventListener('resize', this.initTrHeight)
   },
@@ -325,9 +334,11 @@ export default {
 				this.items = response.data.multiStep.steps;
 				setTimeout(() => this.initTrHeight(), 1500);
 			}
+      this.show = false;
 		});
     },
 	sumitForm: function () {
+    this.show = true;
 		this.$refs.simpleRules.validate().then(success => {
         if (success) {
 			axios.post('/api/auth/multiple-data',
@@ -349,6 +360,7 @@ export default {
 					},
 				  })
 				this.getData();
+        this.show = false;
 			})
 			.catch((err) => {
 				let error = {}

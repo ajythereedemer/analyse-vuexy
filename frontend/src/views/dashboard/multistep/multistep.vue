@@ -1,5 +1,9 @@
 <template>
   <div>
+    <b-overlay
+      :show="show"
+      rounded="sm"
+    >
     <!-- search input -->
 	 <b-button
       v-ripple.400="'rgba(255, 255, 255, 0.15)'"
@@ -157,11 +161,12 @@
         </div>
       </template>
     </vue-good-table>
+    </b-overlay>
   </div>
 </template>
 <script>
 import {
-  BAvatar, BBadge, BPagination, BFormGroup,BButton, BFormInput, BFormSelect, BDropdown, BDropdownItem,
+  BOverlay, BAvatar, BBadge, BPagination, BFormGroup,BButton, BFormInput, BFormSelect, BDropdown, BDropdownItem,
 } from 'bootstrap-vue'
 import { VueGoodTable } from 'vue-good-table'
 import store from '@/store/index'
@@ -169,6 +174,7 @@ import axios from 'axios'
 
 export default {
   components: {
+    BOverlay,
     VueGoodTable,
     BButton,
     BAvatar,
@@ -214,6 +220,7 @@ export default {
         4: 'light-warning',
         5: 'light-info',
       }],
+      show: false
     }
   },
   methods: {
@@ -221,9 +228,11 @@ export default {
         axios.get('/api/auth/get-table').then(response => 
         {
 			this.rows = response.data.multiStep;
+      this.show = false;
 		});
     },
 	deleteData(id){
+    this.show = true;
         axios.get('/api/auth/delete-step/'+id).then(response => 
         {
 			setTimeout(() => this.getData(), 1000);
@@ -266,8 +275,10 @@ export default {
     },
   },
   created() {
+    this.show = true;
 	   this.$http.get('/api/auth/get-table').then(res => { 
 			this.rows = res.data.multiStep
+      this.show = false;
 		});
   },
 }

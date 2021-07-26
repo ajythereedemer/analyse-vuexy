@@ -1,5 +1,9 @@
 <template>
   <div>
+    <b-overlay
+      :show="show"
+      rounded="sm"
+    >
      <div>
 	 <validation-observer ref="simpleRules">
       <b-form
@@ -214,13 +218,14 @@
     >
       <span>Submit</span>
     </b-button>
+    </b-overlay>
   </div>
 </template>
 
 <script>
 import { ValidationProvider, ValidationObserver } from 'vee-validate'
 import {
-  BForm, BFormGroup, BFormInput, BRow, BCol, BButton,BFormTextarea,BFormFile
+ BOverlay, BForm, BFormGroup, BFormInput, BRow, BCol, BButton,BFormTextarea,BFormFile
 } from 'bootstrap-vue'
 import { heightTransition } from '@core/mixins/ui/transition'
 import Ripple from 'vue-ripple-directive'
@@ -231,6 +236,7 @@ import ToastificationContent from '@core/components/toastification/Toastificatio
 
 export default {
   components: {
+    BOverlay,
     BForm,
 	ValidationProvider,
     ValidationObserver,
@@ -260,6 +266,7 @@ export default {
 	  image: [],
 	  required: '',
       nextTodoId: 2,
+      show: false
     }
   },
   mounted() {
@@ -327,6 +334,7 @@ export default {
 		});
     },
 	sumitForm: function () {
+    this.show = true;
 		this.$refs.simpleRules.validate().then(success => {
         if (success) {
 			axios.post('/api/auth/multiple-data',
@@ -346,7 +354,7 @@ export default {
 					  text: `Steps saved successfully!`,
 					},
 				  })
-				  
+				  this.show = false;
 				  setTimeout(() => this.$router.push('/dashboard/multistep'), 1000); 
 			})
 			.catch((err) => {
